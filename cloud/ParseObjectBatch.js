@@ -5,7 +5,7 @@
 var _ = require("underscore");
 var upload = require("./PhotoUpload");
 var push = require("./Push");
-var kue = require("kue"), queue = kue.createQueue({jobEvents: false, redis: process.env.REDISTOGO_URL});
+var kue = require("kue"), queue = kue.createQueue({jobEvents: false, redis: process.env.REDISTOGO_URL, skipConfig: true});
 
 var className = "ParseObjectBatch";
 var BatchUploadObject = Parse.Object.extend(className);

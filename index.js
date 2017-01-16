@@ -69,7 +69,8 @@ if (process.env.REDISTOGO_URL) {
   //  auth: rtg.auth.split(":")[1]
   //};
   kue.createQueue({
-    redis: process.env.REDISTOGO_URL
+    redis: process.env.REDISTOGO_URL,
+    skipConfig: true
   });
 } else {
   console.log("using local redis (from kue)");
