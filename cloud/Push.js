@@ -36,6 +36,7 @@ Parse.Cloud.define("push", function(request, response) {
   var streamGroup = request.params.streamGroup;
   if (msg == null) msg = "See what you've done today.";
   exports.sendPushToDevice(deviceId, msg, streamGroup, {
+    useMasterKey: true,
     success: function () {
       // Push was successful
       response.success("ok");
