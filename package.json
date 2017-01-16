@@ -17,7 +17,8 @@
     "moment": "~2.10.6",
     "moment-timezone": "~0.4.0",
     "underscore": "*",
-    "kue": "0.11.5"
+    "kue": "0.11.5",
+    "kue-scheduler": "0.6.5"
   },
   "scripts": {
     "start": "node index.js"

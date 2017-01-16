@@ -74,41 +74,51 @@ Parse.Cloud.beforeSave(className, function(request, response) {
   }
 });
 
-//Parse.Cloud.job("runFlashback", function(request, status) {
-//  Parse.Cloud.useMasterKey();
-//  var query = new Parse.Query(Parse.Installation);
-//  var m = moment();
-//  query.each(function(install) {
-//    var zone = install.get("timeZone");
-//    console.log( install.id + " current hour is " + m.tz(zone).hour());
-//    var flashes = [];
-//    if (m.tz(zone).hour() == 10) {
-//      var deviceId = install.get("deviceId");
-//      var lookbackNum = install.get("lookbackNum");
-//      if (lookbackNum == null) lookbackNum = 6;
-//      var lookbackPeriod = install.get("lookbackPeriod");
-//      if (lookbackPeriod == null) lookbackPeriod = "months";
-//      flashes.push(exports.checkFlashback(deviceId, lookbackNum, lookbackPeriod).count({
-//        success: function (fbCount) {
-//          console.log(deviceId + " found for flashback: " + fbCount);
-//          if (fbCount > 0) {
-//            pushNotify.sendPushToDevice(deviceId, "Flashback photos found", "flashback");
-//          }
-//        },
-//        error: function(err) {
-//          console.log("error counting flashback");
-//          console.log(err);
-//        }
-//      }));
-//    }
-//    return Parse.Promise.when(flashes);
-//  }).then(function() {
-//    status.success("flashedback");
-//  }, function(error) {
-//    console.log(error);
-//    status.error(error.message);
-//  });
-//});
+var kue = require("kue-scheduler"), queue = kue.createQueue({jobEvents: false, redis: process.env.REDISTOGO_URL});
+
+var job = queue.createJob("lookback", {}).attempts(2).priority("normal");
+
+queue.every("5 * * * *", job);
+
+queue.process("lookback", function(job, done) {
+  var query = new Parse.Query(Parse.Installation);
+  var m = moment();
+  query.each(function(install) {
+    var zone = install.get("timeZone");
+    var tzZone = m.tz(zone);
+    if (tzZone && tzZone.hour) {
+      console.log( install.id + " current hour is " + m.tz(zone).hour());
+      var flashes = [];
+      if (m.tz(zone).hour() == 10) {
+        var deviceId = install.get("deviceId");
+        var lookbackNum = install.get("lookbackNum");
+        if (lookbackNum == null) lookbackNum = 6;
+        var lookbackPeriod = install.get("lookbackPeriod");
+        if (lookbackPeriod == null) lookbackPeriod = "months";
+        flashes.push(exports.checkFlashback(deviceId, lookbackNum, lookbackPeriod).count({
+          success: function (flashBackCount) {
+            console.log(deviceId + " found for flashback: " + flashBackCount);
+            if (flashBackCount > 0) {
+              pushNotify.sendPushToDevice(deviceId, "Flashback photos found", "flashback");
+            }
+          },
+          error: function (err) {
+            console.log("error counting flashback");
+            console.log(err);
+          }
+        }));
+      }
+    } else {
+      console.log(install.id + " does not have a valid hour (zone: " + zone +")");
+    }
+    return Parse.Promise.when(flashes);
+  }, {useMasterKey: true}).then(function() {
+    done();
+  }, function(error) {
+    console.log(error);
+    done(error.message);
+  });
+});
 
 function updatePrimaryCluster(uploadObject) {
   var location = uploadObject.get("location");
