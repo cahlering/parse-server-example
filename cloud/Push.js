@@ -4,6 +4,8 @@
 var imageClassName = "ImageMedia";
 var photoUpload = Parse.Object.extend(imageClassName);
 
+const masterKeyString = "useMasterKey";
+
 //var uploadQuery = new Parse.Query(photoUpload.ClassObject);
 var uploadQuery = new Parse.Query(photoUpload);
 
@@ -49,6 +51,14 @@ Parse.Cloud.define("push", function(request, response) {
 });
 
 exports.sendPushToDevice = function(deviceId, msg, streamGroup, options) {
+
+  if (options === undefined) {
+    options = {};
+  }
+
+  if (!options.hasOwnProperty(masterKeyString)) {
+    options[masterKeyString] = true;
+  }
   var query = new Parse.Query(Parse.Installation);
   query.equalTo("deviceId", deviceId);
 
