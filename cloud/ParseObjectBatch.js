@@ -54,6 +54,11 @@ Parse.Cloud.afterSave(className, function(request, response) {
                    .delay(10000 * (20 - batchPriority))
                    .removeOnComplete(REMOVE_JOB)
                    .save();
+    job.on('enqueue', function() {
+      job.log(moment());
+    }).on('start', function () {
+      job.log(moment());
+    });
     queue.process("batch", function (job, done) {
       processSingleBatch(job.data.batchObj).then(function (newObjects) {
         return upload.clusterUnclusteredForDevice(job.data.deviceId);
