@@ -391,12 +391,3 @@ exports.checkFlashback = function(deviceId, lookbackNum, lookbackPeriod) {
   return getPhotoUploadQueryForDevice(deviceId).greaterThan(TAKEN_TIMESTAMP_FIELD, lookbackStart).lessThan(TAKEN_TIMESTAMP_FIELD, lookbackEnd);
 };
 
-exports.strategyTest1 = function() {
-  var query = new Parse.Query(PhotoUploadObject);
-  return query.first();
-};
-
-exports.strategyTest2 = function() {
-  var query = new Parse.Query(PhotoUploadObject);
-  return query.limit(2).find();
-};
