@@ -3,11 +3,13 @@
  */
 
 var _ = require("underscore");
+var toBool = require("to-bool");
 var upload = require("./PhotoUpload");
 var push = require("./Push");
 var kue = require("kue"), queue = kue.createQueue({jobEvents: false, redis: process.env.REDISTOGO_URL, skipConfig: true});
 
-const REMOVE_JOB = process.env.REMOVE_JOB || true;
+const RETAIN_JOBS = process.env.RETAIN_JOBS || false;
+const REMOVE_JOB = !toBool(RETAIN_JOBS);
 
 var className = "ParseObjectBatch";
 var BatchUploadObject = Parse.Object.extend(className);
