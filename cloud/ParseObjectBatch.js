@@ -7,6 +7,8 @@ var upload = require("./PhotoUpload");
 var push = require("./Push");
 var kue = require("kue"), queue = kue.createQueue({jobEvents: false, redis: process.env.REDISTOGO_URL, skipConfig: true});
 
+const REMOVE_JOB = process.env.REMOVE_JOB || true;
+
 var className = "ParseObjectBatch";
 var BatchUploadObject = Parse.Object.extend(className);
 
@@ -50,7 +52,7 @@ Parse.Cloud.afterSave(className, function(request, response) {
     var batchPriority = request.object.get("priority") || 20;
     var job = queue.create("batch", {batchObj: request.object, deviceId: deviceId})
                    .delay(10000 * (20 - batchPriority))
-                   .removeOnComplete(true)
+                   .removeOnComplete(REMOVE_JOB)
                    .save();
     queue.process("batch", function (job, done) {
       processSingleBatch(job.data.batchObj).then(function (newObjects) {
