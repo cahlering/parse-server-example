@@ -49,11 +49,11 @@ Parse.Cloud.afterSave(className, function(request, response) {
   if (request.object.existed() == false) {
     //Queue batch processing by priority
     //Priority starts at 20 and counts down,
-    //delaying by 10 seconds for each priority level
+    //delaying by 30 seconds for each priority level
     // below 20
     var batchPriority = request.object.get("priority") || 20;
     var job = queue.create("batch", {batchObj: request.object, deviceId: deviceId})
-                   .delay(10000 * (20 - batchPriority))
+                   .delay(30000 * (20 - batchPriority))
                    .removeOnComplete(REMOVE_JOB)
                    .save();
     job.on('enqueue', function() {
