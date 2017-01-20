@@ -32,6 +32,8 @@ var api = new ParseServer({
 // If you wish you require them, you can set them as options in the initialization above:
 // javascriptKey, restAPIKey, dotNetKey, clientKey
 
+var allowInsecureHTTP = false;
+
 var dashboard = new ParseDashboard({
   "apps": [{
     appId: process.env.APP_ID || 'myAppId',
@@ -41,7 +43,7 @@ var dashboard = new ParseDashboard({
   }],
   "users":[{
     "user":"admin",
-    "pass": proces.env.DASHBOARD_BCRYPT_PASS || "$2y$10$wBcdv9NvkHZ6l21N.dOD1OJCkJq7i9d2Mh8LI7F4DEAzSm.dxXiTS"
+    "pass": process.env.DASHBOARD_BCRYPT_PASS || "$2y$10$wBcdv9NvkHZ6l21N.dOD1OJCkJq7i9d2Mh8LI7F4DEAzSm.dxXiTS"
   }],
   "useEncryptedPasswords": true,
   "trustProxy": 1
