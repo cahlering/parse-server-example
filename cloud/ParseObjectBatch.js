@@ -26,10 +26,12 @@ function processSingleBatch(deflatedBatch) {
   _.each(batchObjectArray, function (batchObject) {
     var newObject = new ParseObject();
     newObject.set(batchObject);
-    createdInBatch.push(newObject.save());
+    createdInBatch.push(newObject);
   });
-  batch.set("processed", true).save();
-  return Parse.Promise.when.apply(this, createdInBatch);
+
+  return Parse.Object.saveAll(createdInBatch).then(function() {
+    return batch.set("processed", true).save();
+  });
 }
 
 Parse.Cloud.beforeSave(className, function(request,response) {
