@@ -133,7 +133,7 @@ exports.createEventForLatest = function(deviceId, completionCallback) {
     });
     console.log("promises:" + promises.length);
     if (promises.length > 0) {
-      var msg = "We've created an story for you";
+      var msg = "We've created a story for you";
       push.sendPushToDevice(deviceId, msg, "event", {
         success: function() {
           console.log("Send Push message for event creation to " + deviceId);
