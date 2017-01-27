@@ -20,7 +20,8 @@
     "underscore": "*",
     "kue": "0.11.5",
     "kue-scheduler": "0.6.5",
-    "to-bool": "0.0.1"
+    "to-bool": "0.0.1",
+    "pm2": "2.3.0"
   },
   "scripts": {
     "start": "node index.js"

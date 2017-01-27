@@ -1,1 +1,0 @@
-//no longer valid, index.js is the launch point now.
