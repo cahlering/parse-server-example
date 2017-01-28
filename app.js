@@ -26,7 +26,13 @@ var api = new ParseServer({
             senderId: process.env.PUSH_SENDER_ID,
             apiKey: process.env.PUSH_API_KEY
         }
-    }
+    },
+    loggerAdapter: {
+        module: "parse-server/lib/Adapters/Logger/WinstonLoggerAdapter",
+        options: {
+            logLevel: "error",
+        }
+    },
 });
 // Client-keys like the javascript key or the .NET key are not necessary with parse-server
 // If you wish you require them, you can set them as options in the initialization above:
