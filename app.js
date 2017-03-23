@@ -99,8 +99,8 @@ if (redisUrl) {
     //  auth: rtg.auth.split(":")[1]
     //};
     kue.createQueue({
-        redis: redisUrl,
-        skipConfig: true
+        redis: redisUrl
+        //skipConfig: true //this was required for Redis To Go to work, hopefully not so for Heroku Redis
     });
 } else {
     console.log("using local redis (from kue)");
