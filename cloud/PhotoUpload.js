@@ -78,7 +78,7 @@ var kue = require("kue-scheduler"), queue = kue.createQueue({jobEvents: false, r
 
 var job = queue.createJob("lookback", {}).attempts(2).priority("normal");
 
-queue.every("5 * * * *", job);
+queue.every("17 * * * *", job);
 
 queue.process("lookback", function(job, done) {
   var query = new Parse.Query(Parse.Installation);
@@ -95,23 +95,22 @@ queue.process("lookback", function(job, done) {
         if (lookbackNum == null) lookbackNum = 6;
         var lookbackPeriod = install.get("lookbackPeriod");
         if (lookbackPeriod == null) lookbackPeriod = "months";
-        flashes.push(exports.checkFlashback(deviceId, lookbackNum, lookbackPeriod).count({
-          success: function (flashBackCount) {
-            console.log(deviceId + " found for flashback: " + flashBackCount);
-            if (flashBackCount > 0) {
-              pushNotify.sendPushToDevice(deviceId, "Flashback photos found", "flashback");
-            }
-          },
-          error: function (err) {
-            console.log("error counting flashback");
-            console.log(err);
-          }
-        }));
+        flashes.push(
+            exports.checkFlashback(deviceId, lookbackNum, lookbackPeriod).count().then(
+               function (flashBackCount) {
+                   console.log(deviceId + " found for flashback: " + flashBackCount);
+                   if (flashBackCount > 0) pushNotify.sendPushToDevice(deviceId, "Flashback photos found", "flashback");
+               }, function (err) {
+                    console.log("error counting flashback");
+                    console.log(err);
+               }
+            )
+        );
       }
     } else {
       console.log(install.id + " does not have a valid hour (zone: " + zone +")");
     }
-    return Parse.Promise.when.apply(this, flashes);
+    return Parse.Promise.when(flashes);
   }, {useMasterKey: true}).then(function() {
     done();
   }, function(error) {
