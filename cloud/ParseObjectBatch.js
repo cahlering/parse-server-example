@@ -67,7 +67,7 @@ Parse.Cloud.afterSave(className, function(request, response) {
       processSingleBatch(job.data.batchObj).then(function (newObjects) {
         return upload.clusterUnclusteredForDevice(job.data.deviceId);
       }).then(function (clustered) {
-        push.sendPushToDevice(job.data.deviceId, "", "batch", {});
+        push.sendPushToDevice(job.data.deviceId, null, "batch", {});
         done();
       });
     });
