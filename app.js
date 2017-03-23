@@ -89,16 +89,17 @@ httpServer.listen(port, function() {
 // This will enable the Live Query real-time server
 ParseServer.createLiveQueryServer(httpServer);
 
+var redisUrl = process.env.REDIS_URL || process.env.REDISTOGO_URL;
 var kue = require("kue");
-if (process.env.REDISTOGO_URL) {
-    var rtg   = require("url").parse(process.env.REDISTOGO_URL);
+if (redisUrl) {
+    var rtg   = require("url").parse(redisUrl);
     //var redisOptions = {
     //  host: rtg.hostname,
     //  port: rtg.port,
     //  auth: rtg.auth.split(":")[1]
     //};
     kue.createQueue({
-        redis: process.env.REDISTOGO_URL,
+        redis: redisUrl,
         skipConfig: true
     });
 } else {
