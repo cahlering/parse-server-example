@@ -78,13 +78,15 @@ var redisUrl = process.env.REDISCLOUD_URL || process.env.REDISTOGO_URL;
 
 var kue = require("kue-scheduler"), queue = kue.createQueue({jobEvents: false, redis: redisUrl, skipConfig: true});
 
-var tjob = queue.createJob("sch_test", {created: moment()}).priority('normal');
-queue.every("0 */1 * * * *", tjob);
-queue.process("sch_test", function(job, done) {
-  console.log("sch_test created at: " + job.data.created);
-  console.log("sch_test run     at: " + moment());
-  done();
-});
+// test the god-damn scheduler with this. Worked locally, but not with a couple of
+// different heroku redis providers because they didn't allow notify-keyspace-events
+// var tjob = queue.createJob("sch_test", {created: moment()}).priority('normal');
+// queue.every("0 */1 * * * *", tjob);
+// queue.process("sch_test", function(job, done) {
+//   console.log("sch_test created at: " + job.data.created);
+//   console.log("sch_test run     at: " + moment());
+//   done();
+// });
 
 var job = queue.createJob("lookback", {}).attempts(2).priority("normal");
 
