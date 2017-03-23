@@ -76,9 +76,17 @@ Parse.Cloud.beforeSave(className, function(request, response) {
 
 var kue = require("kue-scheduler"), queue = kue.createQueue({jobEvents: false, redis: process.env.REDISTOGO_URL, skipConfig: true});
 
+var tjob = queue.createJob("sch_test", {created: moment()}).priority('normal');
+queue.every("0 */1 * * * *", tjob);
+queue.process("sch_test", function(job, done) {
+  console.log("sch_test created at: " + job.data.created);
+  console.log("sch_test run     at: " + moment());
+  done();
+});
+
 var job = queue.createJob("lookback", {}).attempts(2).priority("normal");
 
-queue.every("17 * * * *", job);
+queue.every("0 5 * * * *", job);
 
 queue.process("lookback", function(job, done) {
   var query = new Parse.Query(Parse.Installation);
