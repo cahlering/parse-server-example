@@ -74,7 +74,7 @@ Parse.Cloud.beforeSave(className, function(request, response) {
   }
 });
 
-var redisUrl = process.env.REDIS_URL || process.env.REDISTOGO_URL;
+var redisUrl = process.env.REDISCLOUD_URL || process.env.REDISTOGO_URL;
 
 var kue = require("kue-scheduler"), queue = kue.createQueue({jobEvents: false, redis: redisUrl, skipConfig: true});
 

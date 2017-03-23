@@ -6,7 +6,7 @@ var _ = require("underscore");
 var toBool = require("to-bool");
 var upload = require("./PhotoUpload");
 var push = require("./Push");
-var redisUrl = process.env.REDIS_URL || process.env.REDISTOGO_URL;
+var redisUrl = process.env.REDISCLOUD_URL || process.env.REDISTOGO_URL;
 var kue = require("kue"), queue = kue.createQueue({jobEvents: false, redis: redisUrl, skipConfig: true});
 
 const RETAIN_JOBS = process.env.RETAIN_JOBS || false;

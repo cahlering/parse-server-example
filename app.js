@@ -89,7 +89,7 @@ httpServer.listen(port, function() {
 // This will enable the Live Query real-time server
 ParseServer.createLiveQueryServer(httpServer);
 
-var redisUrl = process.env.REDIS_URL || process.env.REDISTOGO_URL;
+var redisUrl = process.env.REDISCLOUD_URL || process.env.REDISTOGO_URL;
 var kue = require("kue");
 if (redisUrl) {
     var rtg   = require("url").parse(redisUrl);
