@@ -111,7 +111,7 @@ queue.process("lookback", function(job, done) {
     } else {
       console.log(install.id + " does not have a valid hour (zone: " + zone +")");
     }
-    return Parse.Promise.when(flashes);
+    return Parse.Promise.when.apply(this, flashes);
   }, {useMasterKey: true}).then(function() {
     done();
   }, function(error) {
