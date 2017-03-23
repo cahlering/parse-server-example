@@ -1,6 +1,8 @@
 //var photoUpload = require("cloud/PhotoUpload.js"); adding this file as a dependency to PhotoUpload created a circular dependency that broke the cli deployment.
 // manually loading photo upload locally for now
 
+var _ = require("underscore");
+
 var imageClassName = "ImageMedia";
 var photoUpload = Parse.Object.extend(imageClassName);
 
@@ -62,11 +64,17 @@ exports.sendPushToDevice = function(deviceId, msg, streamGroup, options) {
   var query = new Parse.Query(Parse.Installation);
   query.equalTo("deviceId", deviceId);
 
-  Parse.Push.send({
-    where: query, // Set our Installation query
-    data: {
+  var dataObject = {
       alert: msg,
       streamGroup: streamGroup
-    }
+  };
+
+  var cleanedDataObject = _.pick(dataObject, function(value, key, object){
+    return _.identity(value);
+  });
+
+  Parse.Push.send({
+    where: query, // Set our Installation query
+    data: cleanedDataObject
   }, options);
 }
