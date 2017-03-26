@@ -88,11 +88,11 @@ var kue = require("kue-scheduler"), queue = kue.createQueue({jobEvents: false, r
 //   done();
 // });
 
-var job = queue.createJob("lookback", {}).attempts(2).priority("normal");
+var job = queue.createJob("unique_lookback", {}).attempts(2).priority("normal").unique('unique_lookback');
 
 queue.every("0 5 * * * *", job);
 
-queue.process("lookback", function(job, done) {
+queue.process("unique_lookback", function(job, done) {
   var query = new Parse.Query(Parse.Installation);
   var m = moment();
   query.each(function(install) {
