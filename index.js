@@ -34,32 +34,34 @@ pm2.connect(function() {
         });
 
     });
-    pm2.start({
-        script    : 'app.js',
-        error_file: "logs/node-app.stderr.log",
-        name      : 'goobzy-app-slave',     // ----> THESE ATTRIBUTES ARE OPTIONAL:
-        exec_mode : 'cluster',            // ----> https://github.com/Unitech/PM2/blob/master/ADVANCED_README.md#schema
-        instances : slaveInstances,
-        max_memory_restart : maxMemory + 'M',   // Auto restart if process taking more than XXmo
-        env: {                            // If needed declare some environment variables
-            "IS_MASTER": false
-        },
-    }, function(err) {
-        if (err) return console.error('Error while launching applications', err.stack || err);
-        console.log('PM2 and application has been succesfully started');
+    if (process.env.SPAWN_WORKERS) {
+        pm2.start({
+            script: 'app.js',
+            error_file: "logs/node-app.stderr.log",
+            name: 'goobzy-app-slave',     // ----> THESE ATTRIBUTES ARE OPTIONAL:
+            exec_mode: 'cluster',            // ----> https://github.com/Unitech/PM2/blob/master/ADVANCED_README.md#schema
+            instances: slaveInstances,
+            max_memory_restart: maxMemory + 'M',   // Auto restart if process taking more than XXmo
+            env: {                            // If needed declare some environment variables
+                "IS_MASTER": false
+            },
+        }, function (err) {
+            if (err) return console.error('Error while launching applications', err.stack || err);
+            console.log('PM2 and application has been succesfully started');
 
-        // Display logs in standard output
-        pm2.launchBus(function(err, bus) {
-            console.log('[PM2] Log streaming started');
+            // Display logs in standard output
+            pm2.launchBus(function (err, bus) {
+                console.log('[PM2] Log streaming started');
 
-            bus.on('log:out', function(packet) {
-                console.log('[App:%s] %s', packet.process.name, packet.data);
+                bus.on('log:out', function (packet) {
+                    console.log('[App:%s] %s', packet.process.name, packet.data);
+                });
+
+                bus.on('log:err', function (packet) {
+                    console.error('[App:%s][Err] %s', packet.process.name, packet.data);
+                });
             });
 
-            bus.on('log:err', function(packet) {
-                console.error('[App:%s][Err] %s', packet.process.name, packet.data);
-            });
         });
-
-    });
+    }
 });
