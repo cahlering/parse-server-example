@@ -12,6 +12,13 @@ if (!databaseUri) {
     console.log('DATABASE_URI not specified, falling back to localhost.');
 }
 
+var pushObject = {};
+if (process.env.PUSH_SENDER_ID) {
+    pushObject.android = {
+        senderId: process.env.PUSH_SENDER_ID,
+        apiKey: process.env.PUSH_API_KEY
+    }
+}
 var api = new ParseServer({
     databaseURI: databaseUri || 'mongodb://localhost:27017/dev',
     cloud: process.env.CLOUD_CODE_MAIN || __dirname + '/cloud/main.js',
@@ -21,12 +28,7 @@ var api = new ParseServer({
     liveQuery: {
         classNames: ["Posts", "Comments"] // List of classes to support for query subscriptions
     },
-    push: {
-        android: {
-            senderId: process.env.PUSH_SENDER_ID,
-            apiKey: process.env.PUSH_API_KEY
-        }
-    },
+    push: pushObject,
     loggerAdapter: {
         module: "parse-server/lib/Adapters/Logger/WinstonLoggerAdapter",
         options: {
