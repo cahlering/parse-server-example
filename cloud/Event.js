@@ -94,7 +94,7 @@ exports.createEventForLatest = function(deviceId, completionCallback) {
         }
       }
     });
-    console.log("eventPhotos:" + Object.keys(eventPhotos).length);;
+    console.log(process.env.IS_MASTER + ", eventPhotos:" + Object.keys(eventPhotos).length);
     var promises = [];
     Object.keys(eventPhotos).forEach(function(cluster) {
       var clusterPhotos = _.sortBy(eventPhotos[cluster], function(photo){ return photo.get("dateImageTakenTs") });
