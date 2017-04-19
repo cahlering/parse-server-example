@@ -74,6 +74,47 @@ Parse.Cloud.beforeSave(className, function(request, response) {
   }
 });
 
+function flashbackQuery(request, response) {
+    var query = new Parse.Query(Parse.Installation);
+    var m = moment();
+    query.each(function (install) {
+        var zone = install.get("timeZone");
+        var tzZone = m.tz(zone);
+        if (tzZone && tzZone.hour) {
+            console.log(install.id + " current hour is " + m.tz(zone).hour());
+            var flashes = [];
+            if (m.tz(zone).hour() == 10) {
+                var deviceId = install.get("deviceId");
+                var lookbackNum = install.get("lookbackNum");
+                if (lookbackNum == null) lookbackNum = 6;
+                var lookbackPeriod = install.get("lookbackPeriod");
+                if (lookbackPeriod == null) lookbackPeriod = "months";
+                flashes.push(
+                    exports.checkFlashback(deviceId, lookbackNum, lookbackPeriod).count().then(
+                        function (flashBackCount) {
+                            console.log(deviceId + " found for flashback: " + flashBackCount);
+                            if (flashBackCount > 0) pushNotify.sendPushToDevice(deviceId, "Flashback photos found", "flashback");
+                        }, function (err) {
+                            console.log("error counting flashback");
+                            console.log(err);
+                        }
+                    )
+                );
+            }
+        } else {
+            console.log(install.id + " does not have a valid hour (zone: " + zone + ")");
+        }
+        return Parse.Promise.when(flashes);
+    }, {useMasterKey: true}).then(function () {
+        response.success();
+    }, function (error) {
+        console.log(error);
+        response.error(error.message);
+    });
+}
+//Expose this as an endpoint to be run by kronus
+Parse.Cloud.define("runFlashback", flashbackQuery);
+
 var redisUrl = process.env.REDISCLOUD_URL || process.env.REDISTOGO_URL;
 
 var isMaster = process.env.IS_MASTER || false;
@@ -96,42 +137,7 @@ if (isMaster) {
     queue.every("0 5 * * * *", job);
 
     queue.process("unique_lookback", function (job, done) {
-        var query = new Parse.Query(Parse.Installation);
-        var m = moment();
-        query.each(function (install) {
-            var zone = install.get("timeZone");
-            var tzZone = m.tz(zone);
-            if (tzZone && tzZone.hour) {
-                console.log(install.id + " current hour is " + m.tz(zone).hour());
-                var flashes = [];
-                if (m.tz(zone).hour() == 10) {
-                    var deviceId = install.get("deviceId");
-                    var lookbackNum = install.get("lookbackNum");
-                    if (lookbackNum == null) lookbackNum = 6;
-                    var lookbackPeriod = install.get("lookbackPeriod");
-                    if (lookbackPeriod == null) lookbackPeriod = "months";
-                    flashes.push(
-                        exports.checkFlashback(deviceId, lookbackNum, lookbackPeriod).count().then(
-                            function (flashBackCount) {
-                                console.log(deviceId + " found for flashback: " + flashBackCount);
-                                if (flashBackCount > 0) pushNotify.sendPushToDevice(deviceId, "Flashback photos found", "flashback");
-                            }, function (err) {
-                                console.log("error counting flashback");
-                                console.log(err);
-                            }
-                        )
-                    );
-                }
-            } else {
-                console.log(install.id + " does not have a valid hour (zone: " + zone + ")");
-            }
-            return Parse.Promise.when(flashes);
-        }, {useMasterKey: true}).then(function () {
-            done();
-        }, function (error) {
-            console.log(error);
-            done(error.message);
-        });
+
     });
 }
 
