@@ -117,30 +117,6 @@ Parse.Cloud.define("runFlashback", flashbackQuery);
 
 var redisUrl = process.env.REDISCLOUD_URL || process.env.REDISTOGO_URL;
 
-var isMaster = process.env.IS_MASTER || false;
-
-if (isMaster) {
-    var kue = require("kue-scheduler"), queue = kue.createQueue({jobEvents: false, redis: redisUrl, skipConfig: true});
-
-    // test the god-damn scheduler with this. Worked locally, but not with a couple of
-    // different heroku redis providers because they didn't allow notify-keyspace-events
-    // var tjob = queue.createJob("sch_test", {created: moment()}).priority('normal');
-    // queue.every("0 */1 * * * *", tjob);
-    // queue.process("sch_test", function(job, done) {
-    //   console.log("sch_test created at: " + job.data.created);
-    //   console.log("sch_test run     at: " + moment());
-    //   done();
-    // });
-
-    var job = queue.createJob("unique_lookback", {}).attempts(2).priority("normal").unique('unique_lookback');
-
-    queue.every("0 5 * * * *", job);
-
-    queue.process("unique_lookback", function (job, done) {
-
-    });
-}
-
 function updatePrimaryCluster(uploadObject) {
   var location = uploadObject.get("location");
   var primaryCluster = uploadObject.get("primaryCluster");
