@@ -379,7 +379,7 @@ Parse.Cloud.define("flashback", function(request, response) {
   var lookbackPeriod = request.params.lookbackPeriod;
   var flashBackQuery = exports.checkFlashback(deviceId, lookbackNum, lookbackPeriod);
   var reminderQuery = exports.checkReminder(deviceId);
-  flashBackQuery.or(reminderQuery).find().then(function(imgs){
+  Parse.Query.or(flashBackQuery, reminderQuery).find().then(function(imgs){
     response.success(imgs);
   });
 });
