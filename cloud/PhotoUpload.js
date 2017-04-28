@@ -93,7 +93,7 @@ function flashbackQuery(request, response) {
                     exports.checkFlashback(deviceId, lookbackNum, lookbackPeriod).count().then(
                         function (flashBackCount) {
                             console.log(deviceId + " found for flashback: " + flashBackCount);
-                            if (flashBackCount > 0) pushNotify.sendPushToDevice(deviceId, "Flashback photos found", "flashback");
+                            if (flashBackCount > 0) pushNotify.sendPushToDevice(deviceId, "Remember this day from " + lookbackNum + " " + lookbackPeriod + (flashBackCount != 1? "s": "") + " ago?", "flashback");
                         }, function (err) {
                             console.log("error counting flashback");
                             console.log(err);
@@ -376,7 +376,7 @@ Parse.Cloud.define("flashback", function(request, response) {
   var deviceId = request.params.deviceId;
   var lookbackNum = request.params.lookback;
   var lookbackPeriod = request.params.lookbackPeriod;
-  exports.checkFlashback(deviceId, lookbackNum, lookbackPeriod).find().then(function(imgs){
+  exports.checkFlashback(deviceId, lookbackNum, lookbackPeriod).or(exports.checkReminder(deviceId)).find().then(function(imgs){
     response.success(imgs);
   });
 });
@@ -387,4 +387,16 @@ exports.checkFlashback = function(deviceId, lookbackNum, lookbackPeriod) {
   console.log("Flashback from " + lookbackStart + " to " + lookbackEnd);
   return getPhotoUploadQueryForDevice(deviceId).greaterThan(TAKEN_TIMESTAMP_FIELD, lookbackStart).lessThan(TAKEN_TIMESTAMP_FIELD, lookbackEnd);
 };
+
+Parse.Cloud.define("remind", function(request, response) {
+  var deviceId = request.params.deviceId;
+  exports.checkReminder(deviceId).find().then(function(imgs){
+    response.success(imgs);
+  });
+});
+
+exports.checkReminder = function(deviceId) {
+  var reminderDate = moment().format("YYYY-MM-DD");
+  getPhotoUploadQueryForDevice(deviceId).equalTo("reminderDate", reminderDate);
+}
 
