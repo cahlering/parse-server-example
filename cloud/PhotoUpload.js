@@ -397,8 +397,8 @@ Parse.Cloud.define("remind", function(request, response) {
 });
 
 exports.checkReminder = function(deviceId) {
-  var reminderDateStart = moment().startOf("day").valueOf();
-  var reminderDateEnd = moment().endOf("day").valueOf();
+  var reminderDateStart = moment().startOf("day").toDate();
+  var reminderDateEnd = moment().endOf("day").toDate();
   return getPhotoUploadQueryForDevice(deviceId).greaterThan(REMIND_DATE_FIELD, reminderDateStart).lessThan(REMIND_DATE_FIELD, reminderDateEnd);
 }
 
