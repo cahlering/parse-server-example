@@ -397,6 +397,6 @@ Parse.Cloud.define("remind", function(request, response) {
 
 exports.checkReminder = function(deviceId) {
   var reminderDate = moment().format("YYYY-MM-DD");
-  getPhotoUploadQueryForDevice(deviceId).equalTo("reminderDate", reminderDate);
+  return getPhotoUploadQueryForDevice(deviceId).equalTo("reminderDate", reminderDate);
 }
 
