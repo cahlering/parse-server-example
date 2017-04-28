@@ -19,6 +19,7 @@ var subClassName = "ImagePathStore";
 var PathStoreObject = Parse.Object.extend(subClassName);
 
 const TAKEN_TIMESTAMP_FIELD = "dateImageTakenTs";
+const REMIND_DATE_FIELD = "remindDate";
 
 Parse.Cloud.beforeSave(className, function(request, response) {
   if (request.object.get("location") == null) {
@@ -396,7 +397,8 @@ Parse.Cloud.define("remind", function(request, response) {
 });
 
 exports.checkReminder = function(deviceId) {
-  var reminderDate = moment().format("YYYY-MM-DD");
-  return getPhotoUploadQueryForDevice(deviceId).equalTo("reminderDate", reminderDate);
+  var reminderDateStart = moment().startOf("day").valueOf();
+  var reminderDateEnd = moment().endOf("day").valueOf();
+  return getPhotoUploadQueryForDevice(deviceId).greaterThan(REMIND_DATE_FIELD, reminderDateStart).lessThan(REMIND_DATE_FIELD, reminderDateEnd);
 }
 
