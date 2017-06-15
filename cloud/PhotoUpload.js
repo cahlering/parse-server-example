@@ -89,7 +89,7 @@ function flashbackQuery(request, response) {
                 var lookbackNum = install.get("lookbackNum");
                 if (lookbackNum == null) lookbackNum = 6;
                 var lookbackPeriod = install.get("lookbackPeriod");
-                if (lookbackPeriod == null) lookbackPeriod = "months";
+                if (lookbackPeriod == null) lookbackPeriod = "month";
                 flashes.push(
                     exports.checkFlashback(deviceId, lookbackNum, lookbackPeriod).count().then(
                         function (flashBackCount) {
