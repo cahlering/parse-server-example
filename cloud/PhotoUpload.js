@@ -402,6 +402,6 @@ exports.checkReminder = function(deviceId) {
   var reminderDateStart = moment().startOf("day").toDate();
   var reminderDateEnd = moment().endOf("day").toDate();
   console.log("Remind " + deviceId + " from " + reminderDateStart.getTime() + " to " + reminderDateEnd.getTime());
-  return getPhotoUploadQueryForDevice(deviceId).greaterThan(REMIND_DATE_FIELD, reminderDateStart).lessThan(REMIND_DATE_FIELD, reminderDateEnd);
+  return getPhotoUploadQueryForDevice(deviceId);
 }
 
