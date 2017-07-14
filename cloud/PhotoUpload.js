@@ -19,7 +19,7 @@ var subClassName = "ImagePathStore";
 var PathStoreObject = Parse.Object.extend(subClassName);
 
 const TAKEN_TIMESTAMP_FIELD = "dateImageTakenTs";
-const REMIND_DATE_FIELD = "remindDate";
+const REMIND_DATE_FIELD = "reminderDate";
 
 Parse.Cloud.beforeSave(className, function(request, response) {
   if (request.object.get("location") == null) {
