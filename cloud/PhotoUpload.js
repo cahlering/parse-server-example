@@ -19,7 +19,7 @@ var subClassName = "ImagePathStore";
 var PathStoreObject = Parse.Object.extend(subClassName);
 
 const TAKEN_TIMESTAMP_FIELD = "dateImageTakenTs";
-const REMIND_DATE_FIELD = "remindDate";
+const REMIND_DATE_FIELD = "reminderDate";
 
 Parse.Cloud.beforeSave(className, function(request, response) {
   if (request.object.get("location") == null) {
@@ -113,26 +113,8 @@ function flashbackQuery(request, response) {
         response.error(error.message);
     });
 }
-
-function remindQuery(request, response) {
-    var query = exports.checkReminder();
-    var reminds = [];
-    query.each(function (remindPhoto) {
-        var deviceId = remindPhoto.get("deviceId");
-        reminds.push(pushNotify.sendPushToDevice(deviceId, "Remember this?", "remind"));
-        return Parse.Promise.when(flashes);
-    }, {useMasterKey: true}).then(function () {
-        response.success();
-    }, function (error) {
-        console.log(error);
-        response.error(error.message);
-    });
-}
-
-//Expose this as an endpoint to be run by kronus, temporize
+//Expose this as an endpoint to be run by kronus
 Parse.Cloud.define("runFlashback", flashbackQuery);
-
-Parse.Cloud.define("runRemind", remindQuery);
 
 var redisUrl = process.env.REDISCLOUD_URL || process.env.REDISTOGO_URL;
 
@@ -396,37 +378,30 @@ Parse.Cloud.define("flashback", function(request, response) {
   var lookbackNum = request.params.lookback;
   var lookbackPeriod = request.params.lookbackPeriod;
   var flashBackQuery = exports.checkFlashback(deviceId, lookbackNum, lookbackPeriod);
-  var reminderQuery = exports.checkReminderByDevice(deviceId);
+  var reminderQuery = exports.checkReminder(deviceId);
   Parse.Query.or(flashBackQuery, reminderQuery).find().then(function(imgs){
     response.success(imgs);
   });
 });
 
 exports.checkFlashback = function(deviceId, lookbackNum, lookbackPeriod) {
-  var lookbackStart = moment().subtract(lookbackNum, lookbackPeriod).startOf("day").valueOf();
-  var lookbackEnd = moment().subtract(lookbackNum, lookbackPeriod).endOf("day").valueOf();
+  var lookbackStart = moment().subtract(lookbackNum, lookbackPeriod).startOf("day").toDate().getTime();
+  var lookbackEnd = moment().subtract(lookbackNum, lookbackPeriod).endOf("day").toDate().getTime();
   console.log("Flashback from " + lookbackStart + " to " + lookbackEnd);
   return getPhotoUploadQueryForDevice(deviceId).greaterThan(TAKEN_TIMESTAMP_FIELD, lookbackStart).lessThan(TAKEN_TIMESTAMP_FIELD, lookbackEnd);
 };
 
 Parse.Cloud.define("remind", function(request, response) {
   var deviceId = request.params.deviceId;
-  exports.checkReminderByDevice(deviceId).find().then(function(imgs){
+  exports.checkReminder(deviceId).find().then(function(imgs){
     response.success(imgs);
   });
 });
 
-exports.checkReminder = function() {
-    var reminderDateStart = moment().startOf("day").toDate();
-    var reminderDateEnd = moment().endOf("day").toDate();
-    console.log("Remind " + deviceId + " from " + reminderDateStart + " to " + reminderDateEnd);
-    return new Parse.Query(PhotoUploadObject).greaterThan(REMIND_DATE_FIELD, reminderDateStart).lessThan(REMIND_DATE_FIELD, reminderDateEnd);
-}
-
-exports.checkReminderByDevice = function(deviceId) {
-    var reminderDateStart = moment().startOf("day").toDate();
-    var reminderDateEnd = moment().endOf("day").toDate();
-    console.log("Remind " + deviceId + " from " + reminderDateStart + " to " + reminderDateEnd);
-    return getPhotoUploadQueryForDevice(deviceId).greaterThan(REMIND_DATE_FIELD, reminderDateStart).lessThan(REMIND_DATE_FIELD, reminderDateEnd);
+exports.checkReminder = function(deviceId) {
+  var reminderDateStart = moment().startOf("day").toDate().getTime();
+  var reminderDateEnd = moment().endOf("day").toDate().getTime();
+  console.log("Remind " + deviceId + " from " + reminderDateStart + " to " + reminderDateEnd);
+  return getPhotoUploadQueryForDevice(deviceId).greaterThan(REMIND_DATE_FIELD, reminderDateStart).lessThan(REMIND_DATE_FIELD, reminderDateEnd);
 }
 
