@@ -113,8 +113,26 @@ function flashbackQuery(request, response) {
         response.error(error.message);
     });
 }
-//Expose this as an endpoint to be run by kronus
+
+function remindQuery(request, response) {
+    var query = exports.checkReminder();
+    var reminds = [];
+    query.each(function (remindPhoto) {
+        var deviceId = remindPhoto.get("deviceId");
+        reminds.push(pushNotify.sendPushToDevice(deviceId, "Remember this?", "remind"));
+        return Parse.Promise.when(flashes);
+    }, {useMasterKey: true}).then(function () {
+        response.success();
+    }, function (error) {
+        console.log(error);
+        response.error(error.message);
+    });
+}
+
+//Expose this as an endpoint to be run by kronus, temporize
 Parse.Cloud.define("runFlashback", flashbackQuery);
+
+Parse.Cloud.define("runRemind", remindQuery);
 
 var redisUrl = process.env.REDISCLOUD_URL || process.env.REDISTOGO_URL;
 
@@ -378,7 +396,7 @@ Parse.Cloud.define("flashback", function(request, response) {
   var lookbackNum = request.params.lookback;
   var lookbackPeriod = request.params.lookbackPeriod;
   var flashBackQuery = exports.checkFlashback(deviceId, lookbackNum, lookbackPeriod);
-  var reminderQuery = exports.checkReminder(deviceId);
+  var reminderQuery = exports.checkReminderByDevice(deviceId);
   Parse.Query.or(flashBackQuery, reminderQuery).find().then(function(imgs){
     response.success(imgs);
   });
@@ -393,15 +411,22 @@ exports.checkFlashback = function(deviceId, lookbackNum, lookbackPeriod) {
 
 Parse.Cloud.define("remind", function(request, response) {
   var deviceId = request.params.deviceId;
-  exports.checkReminder(deviceId).find().then(function(imgs){
+  exports.checkReminderByDevice(deviceId).find().then(function(imgs){
     response.success(imgs);
   });
 });
 
-exports.checkReminder = function(deviceId) {
-  var reminderDateStart = moment().startOf("day").toDate();
-  var reminderDateEnd = moment().endOf("day").toDate();
-  console.log("Remind " + deviceId + " from " + reminderDateStart + " to " + reminderDateEnd);
-  return getPhotoUploadQueryForDevice(deviceId).greaterThan(REMIND_DATE_FIELD, reminderDateStart).lessThan(REMIND_DATE_FIELD, reminderDateEnd);
+exports.checkReminder = function() {
+    var reminderDateStart = moment().startOf("day").toDate();
+    var reminderDateEnd = moment().endOf("day").toDate();
+    console.log("Remind " + deviceId + " from " + reminderDateStart + " to " + reminderDateEnd);
+    return new Parse.Query(PhotoUploadObject).greaterThan(REMIND_DATE_FIELD, reminderDateStart).lessThan(REMIND_DATE_FIELD, reminderDateEnd);
+}
+
+exports.checkReminderByDevice = function(deviceId) {
+    var reminderDateStart = moment().startOf("day").toDate();
+    var reminderDateEnd = moment().endOf("day").toDate();
+    console.log("Remind " + deviceId + " from " + reminderDateStart + " to " + reminderDateEnd);
+    return getPhotoUploadQueryForDevice(deviceId).greaterThan(REMIND_DATE_FIELD, reminderDateStart).lessThan(REMIND_DATE_FIELD, reminderDateEnd);
 }
 
