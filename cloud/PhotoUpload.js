@@ -20,6 +20,7 @@ var PathStoreObject = Parse.Object.extend(subClassName);
 
 const TAKEN_TIMESTAMP_FIELD = "dateImageTakenTs";
 const REMIND_DATE_FIELD = "reminderDate";
+const REMIND_SET_FIELD = "reminderSetTime";
 
 Parse.Cloud.beforeSave(className, function(request, response) {
   if (request.object.get("location") == null) {
@@ -119,7 +120,15 @@ function remindQuery(request, response) {
     var reminds = [];
     query.each(function (remindPhoto) {
         var deviceId = remindPhoto.get("deviceId");
-        reminds.push(pushNotify.sendPushToDevice(deviceId, "Remember this day from " + lookbackNum + " " + lookbackPeriod + (flashBackCount != 1? "s": "") + " ago?", "flashback"));
+        var reminderSet = remindPhoto.get(REMIND_SET_FIELD);
+        var remindMsg;
+        if (reminderSet) {
+          var remindRequested = moment(reminderSet);
+          remindMsg = "You asked us to remind you of a moment on " + reminderSet.format("MMMM Do YYYY, h:mm:ss a") + ".  You can see this moment in your \"Reminders and Flashback\" stream for the next 24 hours. Enjoy!";
+        } else {
+          remindMsg = "You asked us to remind you of a moment.  You can see this moment in your \"Reminders and Flashback\" stream for the next 24 hours. Enjoy!";
+        }
+        reminds.push(pushNotify.sendPushToDevice(deviceId, remindMsg, "remind"));
         return Parse.Promise.when(flashes);
     }, {useMasterKey: true}).then(function () {
         response.success();
