@@ -113,8 +113,8 @@ app.use('/queue', kue.app);
 
 if (process.env.IS_MASTER) {
     var CloudCode = require('./cloud/CloudCode');
-    var cloud = new CloudCode(ParseServer, 'America/Los_Angeles');
+    var cloud = new CloudCode(Parse, 'America/Los_Angeles');
     cloud.putJob("runRemind", null);  // parse cloud function name & param
-    cloud.addCron("runRemind", "0 */15 * * * *"); // per 15 minutes
+    cloud.addCron("runRemind", "0 */1 * * * *"); // per 1 minute
     cloud.start();
 }
