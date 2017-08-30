@@ -16,14 +16,13 @@ existingCheck.count().then(function(reminderCt) {
 
 exports.getLastReminderTime = function() {
     let reminderConfigQuery = new Parse.Query(ReminderConfigObject);
-    let remindResult = null;
-    reminderConfigQuery.descending("requestedTime").first({
-        success: function(firstResult) {
-            remindResult = firstResult;
-        }
+    let requestedTime = reminderConfigQuery.descending("requestedTime").first().then(function(reminderConfig) {
+        console.log(reminderConfig);
+        return reminderConfig;
     });
-    console.log("what?");
-    console.log(remindResult);
-    return remindResult.get("requestedTime");
+    console.log(requestedTime);
+    return requestedTime.then(function(me) {
+        return me.get("requestedTime");
+    });
 };
 
