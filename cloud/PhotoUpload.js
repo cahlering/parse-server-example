@@ -116,6 +116,7 @@ function flashbackQuery(request, response) {
 }
 
 function remindQuery(request, response) {
+    console.log("checking reminders");
     var query = exports.checkReminder();
     var reminds = [];
     query.each(function (remindPhoto) {
