@@ -122,8 +122,8 @@ function remindQuery(request, response) {
     var reminds = [];
     console.log(query);
     query.then(function (remindPhotos) {
-        console.log("r=" + remindPhotos);
-        var deviceId = remindPhoto.get("deviceId");
+        console.log("r=" + remindPhotos.length);
+        var deviceId = remindPhoto[0].get("deviceId");
         console.log("remind device: " + deviceId);
         var reminderSet = remindPhoto.get(REMIND_SET_FIELD);
         var remindMsg;
