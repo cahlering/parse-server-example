@@ -120,6 +120,7 @@ function remindQuery(request, response) {
     console.log("checking reminders");
     var query = exports.checkReminder();
     var reminds = [];
+    console.log("each");
     query.each(function (remindPhoto) {
         var deviceId = remindPhoto.get("deviceId");
         console.log("remind device: " + deviceId);
