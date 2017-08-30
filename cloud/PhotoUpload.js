@@ -134,7 +134,7 @@ function remindQuery(request, response) {
     }, {useMasterKey: true}).then(function () {
         response.success();
     }, function (error) {
-        console.log(error);
+        console.log("ReminderError: " + error);
         response.error(error.message);
     });
 }
@@ -431,12 +431,12 @@ exports.checkReminder = function() {
     var reminderDateEnd = moment().endOf("day").toDate();
     console.log("Reminders from " + reminderDateStart + " to " + reminderDateEnd);
     return new Parse.Query(PhotoUploadObject).greaterThan(REMIND_DATE_FIELD, reminderDateStart).lessThan(REMIND_DATE_FIELD, reminderDateEnd);
-}
+};
 
 exports.checkReminderByDevice = function(deviceId) {
     var reminderDateStart = moment().startOf("day").toDate();
     var reminderDateEnd = moment().endOf("day").toDate();
     console.log("Reminders for " + deviceId + " from " + reminderDateStart + " to " + reminderDateEnd);
     return getPhotoUploadQueryForDevice(deviceId).greaterThan(REMIND_DATE_FIELD, reminderDateStart).lessThan(REMIND_DATE_FIELD, reminderDateEnd);
-}
+};
 
