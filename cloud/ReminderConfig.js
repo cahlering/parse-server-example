@@ -22,6 +22,7 @@ exports.getLastReminderTime = function() {
     });
     console.log(requestedTime);
     return requestedTime.then(function(me) {
+        console.log(me.get("requestedTime"));
         return me.get("requestedTime");
     });
 };
