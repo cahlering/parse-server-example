@@ -138,6 +138,8 @@ function remindQuery(request, response) {
         return Parse.Promise.when(reminds);
     }, function (error) {
         console.log("ReminderError: " + error);
+    }).then(function(remindPushes) {
+        reminderConfig.recordReminder();
     });
 }
 
