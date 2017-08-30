@@ -120,10 +120,10 @@ function remindQuery(request, response) {
     console.log("checking reminders");
     var query = exports.checkReminder();
     var reminds = [];
-    console.log(query);
-    query.each(function (remindPhoto) {
-        console.log("r=" + remindPhoto);
-        var deviceId = remindPhoto.get("deviceId");
+
+    query.then(function (remindPhotos) {
+        console.log(remindPhotos);
+        var deviceId = remindPhotos[0].get("deviceId");
         console.log("remind device: " + deviceId);
         var reminderSet = remindPhoto.get(REMIND_SET_FIELD);
         var remindMsg;
