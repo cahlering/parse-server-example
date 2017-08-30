@@ -18,8 +18,9 @@ exports.getLastReminderTime = function() {
     let reminderConfigQuery = new Parse.Query(ReminderConfigObject);
     let requestedTime = reminderConfigQuery.descending("requestedTime").first();
     let rresult = requestedTime.then(function(reminderConfig) {
-        console.log(reminderConfig);
         return reminderConfig;
+    }).then(function(what){
+        return what;
     });
     console.log(rresult);
     return rresult.get("requestedTime");
