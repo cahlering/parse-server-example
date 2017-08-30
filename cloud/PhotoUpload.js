@@ -135,11 +135,8 @@ function remindQuery(request, response) {
         }
         reminds.push(pushNotify.sendPushToDevice(deviceId, remindMsg, "remind"));
         return Parse.Promise.when(reminds);
-    }, {useMasterKey: true}).then(function () {
-        response.success();
     }, function (error) {
         console.log("ReminderError: " + error);
-        response.error(error.message);
     });
 }
 
@@ -432,8 +429,8 @@ Parse.Cloud.define("remind", function(request, response) {
 
 exports.checkReminder = function() {
     return reminderConfig.getLastReminderTime().then(function(lastReminder) {
-        reminderDateStart = lastReminder.get("requestedTime").getTime();
-        var reminderDateEnd = moment();
+        let reminderDateStart = moment(lastReminder.get("requestedTime").getTime());
+        let reminderDateEnd = moment();
         console.log("Reminders from " + reminderDateStart + " to " + reminderDateEnd);
         return new Parse.Query(PhotoUploadObject).greaterThan(REMIND_DATE_FIELD, reminderDateStart).lessThan(REMIND_DATE_FIELD, reminderDateEnd).find();
     });
