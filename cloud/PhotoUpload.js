@@ -429,7 +429,7 @@ Parse.Cloud.define("remind", function(request, response) {
 
 exports.checkReminder = function() {
     var reminderDateStart = reminderConfig.getLastReminderTime();
-    var reminderDateEnd = moment();
+    var reminderDateEnd = moment({});
     console.log("Reminders from " + reminderDateStart + " to " + reminderDateEnd);
     return new Parse.Query(PhotoUploadObject).greaterThan(REMIND_DATE_FIELD, reminderDateStart).lessThan(REMIND_DATE_FIELD, reminderDateEnd);
 };
