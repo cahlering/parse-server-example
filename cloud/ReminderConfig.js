@@ -6,8 +6,9 @@ let ReminderConfigObject = Parse.Object.extend(className);
 let existingCheck = new Parse.Query(ReminderConfigObject);
 existingCheck.count().then(function(reminderCt) {
     console.log("Reminders sent previously: " + reminderCt);
-    console.log(reminderCt == 0);
+
     if (reminderCt == 0) {
+        console.log("New ReminderConfig");
         return new ReminderConfigObject({"requestedTime":moment().subtract(12, 'hours')}).save();
     }
 }).then(function(reminderConfig) {
