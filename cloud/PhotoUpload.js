@@ -7,6 +7,7 @@ var cluster = require("./Cluster.js");
 var pushNotify = require("./Push.js");
 var _ = require("underscore");
 var moment = require("./moment-timezone-with-data.js");
+let reminderConfig = require("./ReminderConfig.js");
 
 var className = "ImageMedia";
 var PhotoUploadObject = Parse.Object.extend(className);
@@ -427,8 +428,8 @@ Parse.Cloud.define("remind", function(request, response) {
 });
 
 exports.checkReminder = function() {
-    var reminderDateStart = moment().startOf("day").toDate();
-    var reminderDateEnd = moment().endOf("day").toDate();
+    var reminderDateStart = reminderConfig.getLastReminderTime();
+    var reminderDateEnd = moment();
     console.log("Reminders from " + reminderDateStart + " to " + reminderDateEnd);
     return new Parse.Query(PhotoUploadObject).greaterThan(REMIND_DATE_FIELD, reminderDateStart).lessThan(REMIND_DATE_FIELD, reminderDateEnd);
 };
