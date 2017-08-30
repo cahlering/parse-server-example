@@ -121,8 +121,8 @@ function remindQuery(request, response) {
     var query = exports.checkReminder();
     var reminds = [];
     console.log(query);
-    query.each(function (remindPhoto) {
-        console.log("r=" + remindPhoto);
+    query.then(function (remindPhotos) {
+        console.log("r=" + remindPhotos);
         var deviceId = remindPhoto.get("deviceId");
         console.log("remind device: " + deviceId);
         var reminderSet = remindPhoto.get(REMIND_SET_FIELD);
@@ -134,7 +134,7 @@ function remindQuery(request, response) {
           remindMsg = "You asked us to remind you of a moment.  You can see this moment in your \"Reminders and Flashback\" stream for the next 24 hours. Enjoy!";
         }
         reminds.push(pushNotify.sendPushToDevice(deviceId, remindMsg, "remind"));
-        return Parse.Promise.when(flashes);
+        return Parse.Promise.when(reminds);
     }, {useMasterKey: true}).then(function () {
         response.success();
     }, function (error) {
