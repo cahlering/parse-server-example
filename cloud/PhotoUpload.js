@@ -122,18 +122,19 @@ function remindQuery(request, response) {
     var reminds = [];
 
     query.then(function (remindPhotos) {
-        console.log(remindPhotos);
-        var deviceId = remindPhotos[0].get("deviceId");
-        console.log("remind device: " + deviceId);
-        var reminderSet = remindPhoto.get(REMIND_SET_FIELD);
-        var remindMsg;
-        if (reminderSet) {
-          var remindRequested = moment(reminderSet);
-          remindMsg = "You asked us to remind you of a moment on " + reminderSet.format("MMMM Do YYYY, h:mm:ss a") + ".  You can see this moment in your \"Reminders and Flashback\" stream for the next 24 hours. Enjoy!";
-        } else {
-          remindMsg = "You asked us to remind you of a moment.  You can see this moment in your \"Reminders and Flashback\" stream for the next 24 hours. Enjoy!";
-        }
-        reminds.push(pushNotify.sendPushToDevice(deviceId, remindMsg, "remind"));
+        _.each(remindPhotos, function(remindPhoto) {
+            var deviceId = remindPhoto.get("deviceId");
+            console.log("remind device: " + deviceId);
+            var reminderSet = remindPhoto.get(REMIND_SET_FIELD);
+            var remindMsg;
+            if (reminderSet) {
+                var remindRequested = moment(reminderSet);
+                remindMsg = "You asked us to remind you of a moment on " + reminderSet.format("MMMM Do YYYY, h:mm:ss a") + ".  You can see this moment in your \"Reminders and Flashback\" stream for the next 24 hours. Enjoy!";
+            } else {
+                remindMsg = "You asked us to remind you of a moment.  You can see this moment in your \"Reminders and Flashback\" stream for the next 24 hours. Enjoy!";
+            }
+            reminds.push(pushNotify.sendPushToDevice(deviceId, remindMsg, "remind"));
+        });
         return Parse.Promise.when(reminds);
     }, function (error) {
         console.log("ReminderError: " + error);
