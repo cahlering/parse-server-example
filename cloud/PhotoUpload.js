@@ -121,9 +121,9 @@ function remindQuery(request, response) {
     var query = exports.checkReminder();
     var reminds = [];
     console.log(query);
-    query.then(function (remindPhotos) {
-        console.log(remindPhotos);
-        var deviceId = remindPhotos[0].get("deviceId");
+    query.each(function (remindPhoto) {
+        console.log("r=" + remindPhoto);
+        var deviceId = remindPhoto.get("deviceId");
         console.log("remind device: " + deviceId);
         var reminderSet = remindPhoto.get(REMIND_SET_FIELD);
         var remindMsg;
@@ -435,7 +435,7 @@ exports.checkReminder = function() {
         reminderDateStart = lastReminder.get("requestedTime");
         var reminderDateEnd = moment();
         console.log("Reminders from " + reminderDateStart + " to " + reminderDateEnd);
-        return new Parse.Query(PhotoUploadObject).greaterThan(REMIND_DATE_FIELD, reminderDateStart).lessThan(REMIND_DATE_FIELD, reminderDateEnd);
+        return new Parse.Query(PhotoUploadObject).greaterThan(REMIND_DATE_FIELD, reminderDateStart).lessThan(REMIND_DATE_FIELD, reminderDateEnd).find();
     });
 };
 
