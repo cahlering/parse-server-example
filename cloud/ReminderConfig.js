@@ -9,7 +9,7 @@ existingCheck.count().then(function(reminderCt) {
 
     if (reminderCt == 0) {
         console.log("New ReminderConfig");
-        return new ReminderConfigObject({"requestedTime":moment().subtract(12, 'hours')}).save();
+        return new ReminderConfigObject().set("requestedTime", moment().subtract(12, 'hours')).save();
     }
 }).then(function(reminderConfig) {
     console.log("Seeded reminder: " + reminderConfig.id);
@@ -21,6 +21,6 @@ exports.getLastReminderTime = function() {
 };
 
 exports.recordReminder = function() {
-    new ReminderConfigObject({"requestedTime":moment()}).save();
+    new ReminderConfigObject().set("requestedTime", moment()).save();
 };
 
