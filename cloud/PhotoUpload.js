@@ -1,6 +1,8 @@
 /**
  * Created by cahlering on 6/6/14.
  */
+'use strict'
+
 
 var utils = require("./utils.js");
 var cluster = require("./Cluster.js");
@@ -432,10 +434,13 @@ Parse.Cloud.define("remind", function(request, response) {
 
 exports.checkReminder = function() {
     return reminderConfig.getLastReminderTime().then(function(lastReminder) {
+        if (lastReminder == null) {
+            return Parse.Promise.as({});
+        }
         let reminderDateStart = lastReminder.get("requestedTime").getTime();
         let reminderDateEnd = new Date().getTime();
         console.log("Reminders from " + reminderDateStart + " to " + reminderDateEnd);
-        return new Parse.Query(PhotoUploadObject).greaterThan(REMIND_DATE_FIELD, reminderDateStart).lessThan(REMIND_DATE_FIELD, reminderDateEnd).find();
+        return new Parse.Query(PhotoUploadObject).greaterThan(REMIND_DATE_FIELD, reminderDateStart).lessThan(REMIND_DATE_FIELD, reminderDateEnd).find({useMasterKey:true});
     });
 };
 

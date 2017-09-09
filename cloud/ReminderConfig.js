@@ -1,7 +1,9 @@
+'use strict'
+
 let moment = require("./moment-timezone-with-data.js");
 
-let className = "ReminderConfig";
-let ReminderConfigObject = Parse.Object.extend(className);
+const className = "ReminderConfig";
+const ReminderConfigObject = Parse.Object.extend(className);
 
 let existingCheck = new Parse.Query(ReminderConfigObject);
 existingCheck.count().then(function(reminderCt) {
@@ -9,10 +11,16 @@ existingCheck.count().then(function(reminderCt) {
 
     if (reminderCt == 0) {
         console.log("New ReminderConfig");
-        return new ReminderConfigObject({requestedTime:moment().subtract(12, 'hours')}).save();
+        return new ReminderConfigObject(
+            {requestedTime:moment().subtract(12, 'hours').toDate()})
+            .save();
     }
 }).then(function(reminderConfig) {
-    console.log("Seeded reminder: " + reminderConfig.id);
+    if (reminderConfig !== undefined) {
+        console.log("Seeded reminder: " + reminderConfig.id);
+    }
+}, function(err) {
+    console.log(err);
 });
 
 exports.getLastReminderTime = function() {
@@ -21,6 +29,5 @@ exports.getLastReminderTime = function() {
 };
 
 exports.recordReminder = function() {
-    return new ReminderConfigObject({requestedTime:moment()}).save();
+    return new ReminderConfigObject({requestedTime:moment().toDate()}).save();
 };
-

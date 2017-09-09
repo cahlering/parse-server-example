@@ -2,6 +2,8 @@
  * Created by cahlering on 7/9/14.
  */
 
+'use strict'
+
 var utils = require("./utils.js");
 var _ = require("underscore");
 var photoUpload = require("./PhotoUpload.js");
