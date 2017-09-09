@@ -131,7 +131,7 @@ function remindQuery(request, response) {
             var remindMsg;
             if (reminderSet) {
                 var remindRequested = moment(reminderSet);
-                remindMsg = "You asked us to remind you of a moment on " + reminderSet.format("MMMM Do YYYY, h:mm:ss a") + ".  You can see this moment in your \"Reminders and Flashback\" stream for the next 24 hours. Enjoy!";
+                remindMsg = "You asked us to remind you of a moment on " + remindRequested.format("MMMM Do YYYY, h:mm:ss a") + ".  You can see this moment in your \"Reminders and Flashback\" stream for the next 24 hours. Enjoy!";
             } else {
                 remindMsg = "You asked us to remind you of a moment.  You can see this moment in your \"Reminders and Flashback\" stream for the next 24 hours. Enjoy!";
             }
