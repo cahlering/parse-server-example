@@ -138,10 +138,10 @@ function remindQuery(request, response) {
             reminds.push(pushNotify.sendPushToDevice(deviceId, remindMsg, "remind"));
         });
         return Parse.Promise.when(reminds);
-    }, function (error) {
-        console.log("ReminderError: " + error);
     }).then(function(remindPushes) {
         reminderConfig.recordReminder();
+    }, function (error) {
+        console.log("ReminderError: " + error);
     });
 }
 
