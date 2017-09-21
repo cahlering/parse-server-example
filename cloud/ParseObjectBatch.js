@@ -17,9 +17,11 @@ var BatchUploadObject = Parse.Object.extend(className);
 
 function processSingleBatch(deflatedBatch) {
   deflatedBatch.className = className;
-  var batch = Parse.Object.fromJSON(deflatedBatch);
-  if (!batch.get("parseObjectJson")) {
+  var batch;
+  if (deflatedBatch.existed()) {
     batch = deflatedBatch;
+  } else {
+    batch = Parse.Object.fromJSON(deflatedBatch);
   }
   var objectArrayStr = batch.get("parseObjectJson");
   var objectType = batch.get("parseObjectType");
@@ -35,6 +37,11 @@ function processSingleBatch(deflatedBatch) {
 
   return Parse.Object.saveAll(createdInBatch).then(function() {
     return batch.set("processed", true).save();
+  }, function(error){
+    return batch.set("processed", true)
+        .set("withError", true)
+        .set("errorCode", error.code)
+        .set("errorMessage", error.message).save()
   });
 }
 
@@ -80,7 +87,10 @@ Parse.Cloud.afterSave(className, function(request, response) {
 });
 
 Parse.Cloud.define("rebatch", function(request, response) {
-  new Parse.Query(BatchUploadObject).doesNotExist("processed").find().then(function(batches){
+  Parse.Query.or(
+    new Parse.Query(BatchUploadObject).doesNotExist("processed"),
+    new Parse.Query(BatchUploadObject).equalTo("processed", false)
+  ).find().then(function(batches){
     var batchPromises = [];
     _.each(batches, function(batch) {
       batchPromises.push(processSingleBatch(batch));
