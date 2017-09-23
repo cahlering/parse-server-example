@@ -18,7 +18,7 @@ var BatchUploadObject = Parse.Object.extend(className);
 function processSingleBatch(deflatedBatch) {
   deflatedBatch.className = className;
   var batch;
-  if (deflatedBatch.existed()) {
+  if (deflatedBatch.existed && deflatedBatch.existed()) {
     batch = deflatedBatch;
   } else {
     batch = Parse.Object.fromJSON(deflatedBatch);
