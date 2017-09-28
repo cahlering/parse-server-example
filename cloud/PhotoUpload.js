@@ -425,16 +425,18 @@ Parse.Cloud.define("flashback", function(request, response) {
     queue.process("flashed", function (job, done) {
       var flashedObjects = [];
       _.each(job.data.ids, function(id) {
-        flashedObjects.push(
-          new Parse.Query(PhotoUploadObject).equalTo("objectId", id).find().then(
-            function(obj) {
-              return obj.set("reminderTriggered", false).save();
-            }
-          )
-        );
+        flashedObjects.push(new Parse.Query(PhotoUploadObject).equalTo("objectId", id).first());
       });
       Parse.Promise.when(flashedObjects).then(function (triggered) {
+        var savedTriggers = [];
+        _.each(triggered, function(obj) {
+          savedTriggers.push(obj.set("reminderTriggered", false).save());
+        });
+        return Parse.Promise.when(savedTriggers);
+      }).then(function(saved){
         done();
+      }, function (err) {
+          console.log(err);
       });
     });
 
