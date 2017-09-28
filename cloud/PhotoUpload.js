@@ -131,11 +131,12 @@ function remindQuery(request, response) {
             var remindMsg;
             if (reminderSet) {
                 var remindRequested = moment(reminderSet);
-                remindMsg = "You asked us to remind you of a moment on " + remindRequested.format("MMMM Do YYYY, h:mm:ss a") + ".  You can see this moment in your \"Reminders and Flashback\" stream for the next 24 hours. Enjoy!";
+                remindMsg = "You asked us to remind you of a moment on " + remindRequested.format("MMMM Do YYYY, h:mm:ss a") + ". See it in \"Reminders and Flashbacks\". Enjoy!";
             } else {
-                remindMsg = "You asked us to remind you of a moment.  You can see this moment in your \"Reminders and Flashback\" stream for the next 24 hours. Enjoy!";
+                remindMsg = "You asked us to remind you of a moment. See it in \"Reminders and Flashbacks\". Enjoy!";
             }
             reminds.push(pushNotify.sendPushToDevice(deviceId, remindMsg, "remind"));
+            reminds.push(remindPhoto.set("reminderTriggered", true).save());
         });
         return Parse.Promise.when(reminds);
     }).then(function(remindPushes) {
@@ -151,6 +152,7 @@ Parse.Cloud.define("runFlashback", flashbackQuery);
 Parse.Cloud.define("runRemind", remindQuery);
 
 var redisUrl = process.env.REDISCLOUD_URL || process.env.REDISTOGO_URL;
+var kue = require("kue"), queue = kue.createQueue({jobEvents: false, redis: redisUrl, skipConfig: true});
 
 function updatePrimaryCluster(uploadObject) {
   var location = uploadObject.get("location");
@@ -414,6 +416,28 @@ Parse.Cloud.define("flashback", function(request, response) {
   var flashBackQuery = exports.checkFlashback(deviceId, lookbackNum, lookbackPeriod);
   var reminderQuery = exports.checkReminderByDevice(deviceId);
   Parse.Query.or(flashBackQuery, reminderQuery).find().then(function(imgs){
+    var objectIds = _.pluck(imgs, 'id');
+
+    var job = queue.create("flashed", {ids: objectIds})
+      .delay(3000)
+      .removeOnComplete(true)
+      .save();
+    queue.process("flashed", function (job, done) {
+      var flashedObjects = [];
+      _.each(job.data.ids, function(id) {
+        flashedObjects.push(
+          new Parse.Query(PhotoUploadObject).equalTo("objectId", id).find().then(
+            function(obj) {
+              return obj.set("reminderTriggered", false).save();
+            }
+          )
+        );
+      });
+      Parse.Promise.when(flashedObjects).then(function (triggered) {
+        done();
+      });
+    });
+
     response.success(imgs);
   });
 });
