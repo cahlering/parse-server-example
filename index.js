@@ -25,11 +25,11 @@ pm2.connect(function() {
             console.log('[PM2] Log streaming started');
 
             bus.on('log:out', function(packet) {
-                console.log('[App:%s] %s', packet.process.name, packet.data);
+                console.log('[App:%s-%d] %s', packet.process.name, process.env.pm_id, packet.data);
             });
 
             bus.on('log:err', function(packet) {
-                console.error('[App:%s][Err] %s', packet.process.name, packet.data);
+                console.error('[App:%s-%d][Err] %s', packet.process.name, process.env.pm_id, packet.data);
             });
         });
 
@@ -54,11 +54,11 @@ pm2.connect(function() {
                 console.log('[PM2] Log streaming started');
 
                 bus.on('log:out', function (packet) {
-                    console.log('[App:%s] %s', packet.process.name, packet.data);
+                    console.log('[App:%s-%d] %s', packet.process.name, process.env.pm_id, packet.data);
                 });
 
                 bus.on('log:err', function (packet) {
-                    console.error('[App:%s][Err] %s', packet.process.name, packet.data);
+                    console.error('[App:%s-%d][Err] %s', packet.process.name, process.env.pm_id, packet.data);
                 });
             });
 
