@@ -471,8 +471,9 @@ exports.checkReminder = function() {
 };
 
 exports.checkReminderByDevice = function(deviceId) {
+    const reminderThreshold = Parse.Config.current().get("reminder_threshold_seconds");
     var reminderDateStart = moment().startOf("day").toDate().getTime();
-    var reminderDateEnd = moment().endOf("day").toDate().getTime();
+    var reminderDateEnd = moment().add(reminderThreshold, "seconds").endOf("day").toDate().getTime();
     console.log("Reminders for " + deviceId + " from " + reminderDateStart + " to " + reminderDateEnd);
     return getPhotoUploadQueryForDevice(deviceId).greaterThan(REMIND_DATE_FIELD, reminderDateStart).lessThan(REMIND_DATE_FIELD, reminderDateEnd);
 };
