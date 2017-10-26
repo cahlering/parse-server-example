@@ -1,7 +1,7 @@
 /**
  * Created by cahlering on 6/6/14.
  */
-'use strict'
+'use strict';
 
 
 var utils = require("./utils.js");
@@ -430,7 +430,7 @@ Parse.Cloud.define("flashback", function(request, response) {
       Parse.Promise.when(flashedObjects).then(function (triggered) {
         var savedTriggers = [];
         _.each(triggered, function(obj) {
-          savedTriggers.push(obj.set("reminderTriggered", false).save());
+          //savedTriggers.push(obj.set("reminderTriggered", false).save());
         });
         return Parse.Promise.when(savedTriggers);
       }).then(function(saved){
