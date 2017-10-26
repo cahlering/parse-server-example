@@ -96,22 +96,6 @@ Parse.Cloud.define("runRemind", remindQuery);
 var redisUrl = process.env.REDISCLOUD_URL || process.env.REDISTOGO_URL;
 var kue = require("kue"), queue = kue.createQueue({jobEvents: false, redis: redisUrl, skipConfig: true});
 
-function updatePrimaryCluster(uploadObject) {
-  var location = uploadObject.get("location");
-  var primaryCluster = uploadObject.get("primaryCluster");
-  if (primaryCluster == null && location != null) {
-    console.log("search for cluster for " + uploadObject.id);
-    return cluster.clusterForDeviceNearLocation(uploadObject.get("deviceId"), location, uploadObject).then(function (cluster) {
-      var mediaRelation = cluster.relation("media");
-      mediaRelation.add(uploadObject);
-      cluster.save();
-      uploadObject.set("primaryCluster", cluster);
-      return uploadObject.save();
-    });
-  } else {
-    return Parse.Promise.as(uploadObject);
-  }
-}
 
 function getSponsoredContent() {
   return undefined;
@@ -161,7 +145,9 @@ Parse.Cloud.define("selfie", function(request, response) {
 
 });
 
-Parse.Cloud.define("allpaths", function(request, response) {
+Parse.Cloud.define("allpaths", exports.getAllPaths);
+
+exports.getAllPaths = function(request, response) {
 
   model.getPhotoUploadQueryForDevice(request.params.deviceId).count().then(function(ct) {
     if (ct < 10000){
@@ -184,7 +170,7 @@ Parse.Cloud.define("allpaths", function(request, response) {
   }, function(error) {
     response.error(error);
   })
-});
+};
 
 Parse.Cloud.define("deduplicate", function(request, response) {
 

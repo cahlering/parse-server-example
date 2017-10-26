@@ -1,5 +1,7 @@
 "use strict";
 const Parse = require("parse/node");
+let proxyquire = require("proxyquire");
+
 const ParseCloud = {
     beforeSave: function(className, beforeHandler) {
         console.log("beforeSave called:" + className);
@@ -9,21 +11,37 @@ const ParseCloud = {
     }
 };
 Object.assign(Parse.Cloud, ParseCloud);
-const ParseQuery = {
-   count: function() {
-       return 1;
-   }
-};
-Object.assign(Parse.Query, ParseQuery);
 global.Parse = Parse;
 Parse.initialize("testkey");
-const photoLib = require("../cloud/PhotoUpload");
+
+const photoLib = proxyquire("../cloud/PhotoUpload", {
+        "./PhotoUploadModel": {
+            updatePrimaryCluster:function(){
+                console.log("called updatePrimaryCluster");
+            },
+            getPhotoUploadQueryForDevice:function () {
+                console.log("called getPhotoUploadQueryForDevice");
+                return {
+                    count:function() {
+                        return new Promise((resolve, reject)=> {
+                            //reject();
+                            resolve(1);
+                        });
+                    }
+                };
+            }
+        },
+        "./Cluster.js": {
+
+        }
+    }
+);
 
 describe("General Purpose ImageMedia", function () {
 
-    it("Should have reminders", function () {
+    it("Should return all paths", function () {
 
-        //let reminderPromise = photoLib.checkReminder();
+        photoLib.getAllPaths({params:{deviceId:""}}, {error:function(msg) {console.log("allpaths error:"+msg)}});
         expect(true).toBe(true);
     })
 });
