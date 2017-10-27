@@ -131,19 +131,13 @@ Parse.Cloud.define("cluster", function(request, response) {
 
 });
 
-Parse.Cloud.define("selfie", function(request, response) {
+Parse.Cloud.define("selfie", getSelfiesForDevice);
 
-  var localQuery = getPhotoUploadQueryForDevice(request.params.deviceId);
-
-  localQuery.equalTo("selfie", true);
-
-  localQuery.find({
-    success: function(results) {
-      response.success(results);
-    }
-  });
-
-});
+exports.getSelfiesForDevice = function(request, response) {
+    model.getSelfiesForDevice(request.params.deviceId).then(function (devices) {
+        response.success(devices);
+    });
+};
 
 Parse.Cloud.define("allpaths", exports.getAllPaths);
 

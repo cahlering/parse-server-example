@@ -244,3 +244,7 @@ exports.checkReminderByDevice = function(deviceId) {
     return getPhotoUploadQueryForDevice(deviceId).greaterThan(REMIND_DATE_FIELD, reminderDateStart).lessThan(REMIND_DATE_FIELD, reminderDateEnd);
 };
 
+exports.getSelfiesForDevice = function(deviceId) {
+    return getPhotoUploadQueryForDevice(deviceId).equalTo("selfie", true).find();
+}
+
