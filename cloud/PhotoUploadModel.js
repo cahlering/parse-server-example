@@ -246,5 +246,24 @@ exports.checkReminderByDevice = function(deviceId) {
 
 exports.getSelfiesForDevice = function(deviceId) {
     return getPhotoUploadQueryForDevice(deviceId).equalTo("selfie", true).find();
-}
+};
+
+exports.markFlashed = function (photoIds, doneFunction) {
+    var flashedObjects = [];
+    _.each(photoIds, function (id) {
+        flashedObjects.push(new Parse.Query(PhotoUploadObject).equalTo("objectId", id).first());
+    });
+    Parse.Promise.when(flashedObjects).then(function (triggered) {
+        var savedTriggers = [];
+        _.each(triggered, function (obj) {
+            //savedTriggers.push(obj.set("reminderTriggered", false).save());
+        });
+        return Parse.Promise.when(savedTriggers);
+    }).then(function (saved) {
+        doneFunction();
+    }, function (err) {
+        console.log(err);
+    });
+};
+
 

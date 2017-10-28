@@ -17,3 +17,7 @@ model.getExistingReminderCount().then(function(reminderCt) {
 }, function(err) {
     console.log(err);
 });
+
+exports.recordReminder = function() {
+    return model.recordReminder();
+};

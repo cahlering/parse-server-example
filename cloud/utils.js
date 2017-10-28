@@ -3,7 +3,7 @@
  */
 
 exports.shuffle = function(array) {
-  var counter = array.length, temp, index;
+  let counter = array.length, temp, index;
 
   // While there are elements in the array
   while (counter > 0) {
@@ -20,4 +20,4 @@ exports.shuffle = function(array) {
   }
 
   return array;
-}
+};

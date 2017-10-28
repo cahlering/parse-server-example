@@ -27,12 +27,28 @@ const photoLib = proxyquire("../cloud/PhotoUpload", {
                             //reject();
                             resolve(1);
                         });
+                    },
+                    limit: function(count) {
+                        console.log("called limit(" + count + ")");
+                        return this;
+                    },
+                    skip: function (count) {
+                        console.log("called skip(" + count + ")");
+                        return this;
+                    },
+                    find: function() {
+                        return new Promise((resolve, reject)=> {
+                           resolve({"filePath": "a"});
+                        });
                     }
-                };
+                }
             }
         },
         "./Cluster.js": {
 
+        },
+        "./scheduler": {
+            '@noCallThru':true
         }
     }
 );

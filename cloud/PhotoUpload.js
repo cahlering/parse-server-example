@@ -10,15 +10,13 @@ var pushNotify = require("./Push.js");
 var _ = require("underscore");
 var moment = require("./moment-timezone-with-data.js");
 let reminderConfig = require("./ReminderConfig.js");
+let scheduler = require("./scheuler");
 
-var uniqueKeyColumns = ["deviceId", "filePath"];
-
+scheduler.registerFlashedProcessor(model.markFlashed);
 
 var subClassName = "ImagePathStore";
 var PathStoreObject = Parse.Object.extend(subClassName);
 
-const TAKEN_TIMESTAMP_FIELD = "dateImageTakenTs";
-const REMIND_DATE_FIELD = "reminderDate";
 const REMIND_SET_FIELD = "reminderSetDate";
 
 function flashbackQuery(request, response) {
@@ -93,10 +91,6 @@ Parse.Cloud.define("runFlashback", flashbackQuery);
 
 Parse.Cloud.define("runRemind", remindQuery);
 
-var redisUrl = process.env.REDISCLOUD_URL || process.env.REDISTOGO_URL;
-var kue = require("kue"), queue = kue.createQueue({jobEvents: false, redis: redisUrl, skipConfig: true});
-
-
 function getSponsoredContent() {
   return undefined;
 }
@@ -131,7 +125,7 @@ Parse.Cloud.define("cluster", function(request, response) {
 
 });
 
-Parse.Cloud.define("selfie", getSelfiesForDevice);
+Parse.Cloud.define("selfie", exports.getSelfiesForDevice);
 
 exports.getSelfiesForDevice = function(request, response) {
     model.getSelfiesForDevice(request.params.deviceId).then(function (devices) {
@@ -222,27 +216,7 @@ Parse.Cloud.define("flashback", function(request, response) {
   Parse.Query.or(flashBackQuery, reminderQuery).find().then(function(imgs){
     var objectIds = _.pluck(imgs, 'id');
 
-    var job = queue.create("flashed", {ids: objectIds})
-      .delay(3000)
-      .removeOnComplete(true)
-      .save();
-    queue.process("flashed", function (job, done) {
-      var flashedObjects = [];
-      _.each(job.data.ids, function(id) {
-        flashedObjects.push(new Parse.Query(PhotoUploadObject).equalTo("objectId", id).first());
-      });
-      Parse.Promise.when(flashedObjects).then(function (triggered) {
-        var savedTriggers = [];
-        _.each(triggered, function(obj) {
-          //savedTriggers.push(obj.set("reminderTriggered", false).save());
-        });
-        return Parse.Promise.when(savedTriggers);
-      }).then(function(saved){
-        done();
-      }, function (err) {
-          console.log(err);
-      });
-    });
+    var job = scheduler.scheduleFlashed(objectIds);
 
     response.success(imgs);
   });
