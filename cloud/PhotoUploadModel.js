@@ -221,7 +221,7 @@ exports.clusterUnclusteredForDevice = clusterUnclusteredForDevice;
 exports.checkFlashback = function(deviceId, lookbackNum, lookbackPeriod) {
   var lookbackStart = moment().subtract(lookbackNum, lookbackPeriod).startOf("day").valueOf();
   var lookbackEnd = moment().subtract(lookbackNum, lookbackPeriod).endOf("day").valueOf();
-  console.log("Flashback from " + lookbackStart + " to " + lookbackEnd);
+  console.log("Flashback for " + deviceId + " from " + lookbackStart + " to " + lookbackEnd);
   return getPhotoUploadQueryForDevice(deviceId).greaterThan(TAKEN_TIMESTAMP_FIELD, lookbackStart).lessThan(TAKEN_TIMESTAMP_FIELD, lookbackEnd);
 };
 
